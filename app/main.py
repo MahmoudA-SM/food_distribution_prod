@@ -6,7 +6,7 @@ from numpy import extract
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask import Flask, abort, render_template, request, redirect, url_for, session, flash
 from sqlalchemy import text
-from database import db, Customer, Order, Product, OrderDetail, Batch, SalesRep, User, Commission, RepStock, ToVisit, \
+from app.database import db, Customer, Order, Product, OrderDetail, Batch, SalesRep, User, Commission, RepStock, ToVisit, \
     Expenses
 from functools import wraps
 from flask_migrate import Migrate
