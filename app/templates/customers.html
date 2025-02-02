@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Customer List{% endblock %}
+
+{% block content %}
+<h1 class="text-center" data-key="CustomerList">Customer List</h1>
+
+<!-- Search Form -->
+<form method="POST" action="{{ url_for('customers') }}" class="mb-3">
+  <div class="row">
+    <div class="col-md-6">
+      <input
+        type="text"
+        name="search_query"
+        class="form-control"
+        placeholder="Enter search term (e.g., store name, district)"
+        value="{{ search_query }}">
+    </div>
+    <div class="col-md-4">
+      <select
+        name="search_criteria"
+        class="form-select"
+        required>
+        <option value="Store Name" {% if search_criteria == "Store Name" %}selected{% endif %}>Store Name</option>
+        <option value="District" {% if search_criteria == "District" %}selected{% endif %}>District</option>
+        <option value="Street Name" {% if search_criteria == "Street Name" %}selected{% endif %}>Street Name</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary w-100" data-key="Search">Search</button>
+    </div>
+  </div>
+</form>
+
+<!-- Filter Form -->
+<form method="GET" action="{{ url_for('customers') }}" class="mb-3">
+  <div class="row">
+    <div class="col-md-4">
+      <input
+        type="text"
+        name="street_name"
+        class="form-control"
+        placeholder="Filter by Street Name"
+        value="{{ street_name }}">
+    </div>
+    <div class="col-md-4">
+      <input
+        type="text"
+        name="district"
+        class="form-control"
+        placeholder="Filter by District"
+        value="{{ district }}">
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary w-100" data-key="Filter">Filter</button>
+    </div>
+    <div class="col-md-2">
+      <a href="{{ url_for('customers') }}" class="btn btn-secondary w-100" data-key="Reset">Reset</a>
+    </div>
+  </div>
+</form>
+
+<!-- Customer Table -->
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th data-key="CustomerID">ID</th>
+        <th data-key="StoreName">Store Name</th>
+        <th data-key="StreetName">Street Name</th>
+        <th data-key="District">District</th>
+        <th data-key="ContactPerson">Contact Person</th>
+        <th data-key="ContactPhone">Contact Phone</th>
+        <th data-key="Location">Location</th>
+        <th data-key="Notes">Notes</th>
+        <th data-key="Actions">Actions</th>
+      </tr>
+    </thead>
+    {% if customers %}
+    <tbody>
+      {% for customer in customers %}
+      <tr>
+        <td>{{ customer.CustomerID }}</td>
+        <td>{{ customer.StoreName }}</td>
+        <td>{{ customer.StreetName }}</td>
+        <td>{{ customer.District }}</td>
+        <td>{{ customer.ContactPerson }}</td>
+        <td>
+          {% if customer.ContactPhone %}
+          <a href="tel:{{ customer.ContactPhone }}">{{ customer.ContactPhone }}</a>
+          {% else %}
+          <span class="text-muted" data-key="NoPhone">No Phone</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if customer.Location %}
+          <a href="{{ customer.Location }}" target="_blank" class="btn btn-sm btn-outline-primary" data-key="ViewLocation">View Location</a>
+          {% else %}
+          <span class="text-muted" data-key="NoLocation">No location</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if customer.Notes %}
+          {{ customer.Notes }}
+          {% else %}
+          None <!-- No translation for "None" -->
+          {% endif %}
+        </td>
+        <td>
+          <div class="d-flex gap-2">
+            {% if session['role'] == 'admin' %}
+            <a href="{{ url_for('edit_customer', customer_id=customer.CustomerID) }}" class="btn btn-warning btn-sm" data-key="Edit">Edit</a>
+            {% endif %}
+            <a href="{{ url_for('view_orders', customer_id=customer.CustomerID) }}" class="btn btn-secondary btn-sm" data-key="ViewOrders">View Orders</a>
+            {% if session['role'] in ['admin', 'sales'] %}
+            <!-- Schedule Visit Button -->
+            <form action="{{ url_for('add_to_visit', customer_id=customer.CustomerID) }}" method="POST" style="display:inline;">
+              <input 
+                type="text" 
+                name="visit_date" 
+                class="form-control-sm date-picker" 
+                placeholder="mm/dd/yyyy" 
+                required>
+              <button type="submit" class="btn btn-primary btn-sm" data-key="ScheduleVisit">Schedule Visit</button>
+            </form>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    {% else %}
+    <tbody>
+      <tr>
+        <td colspan="9" class="text-center text-muted" data-key="NoCustomers">No customers found matching the criteria.</td>
+      </tr>
+    </tbody>
+    {% endif %}
+  </table>
+</div>
+
+<!-- Pikaday Initialization Script -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Initialize Pikaday for all .date-picker inputs
+    const dateInputs = document.querySelectorAll(".date-picker");
+    dateInputs.forEach(input => {
+      new Pikaday({
+        field: input, // Bind Pikaday to the input field
+        format: "MM/DD/YYYY", // Match the placeholder format
+        defaultDate: new Date(), // Optional: Set default date to today
+        minDate: new Date(), // Optional: Restrict selection to today or later
+      });
+    });
+  });
+</script>
+{% endblock %}

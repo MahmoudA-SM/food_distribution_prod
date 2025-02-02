@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}<span data-key="DashboardTitle">Dashboard</span>{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4" data-key="DashboardTitle">Dashboard</h1>
+
+    <!-- Key Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title" data-key="TotalCustomers">Total Customers</h5>
+                    <p class="card-text">
+                        <span data-key="TotalCustomersValueLabel">Count:</span>
+                        {{ total_customers }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title" data-key="PendingVisits">Pending Visits</h5>
+                    <p class="card-text">
+                        <span data-key="PendingVisitsValueLabel">Count:</span>
+                        {{ pending_visits }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title" data-key="CompletedVisits">Completed Visits</h5>
+                    <p class="card-text">
+                        <span data-key="CompletedVisitsValueLabel">Count:</span>
+                        {{ completed_visits }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title" data-key="TotalOrders">Total Orders</h5>
+                    <p class="card-text">
+                        <span data-key="TotalOrdersValueLabel">Count:</span>
+                        {{ total_orders }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title" data-key="TotalRevenue">Total Revenue</h5>
+                    <p class="card-text">
+                        <span data-key="TotalRevenueValueLabel">SAR:</span>
+                        {{ "%.2f" | format(total_revenue) }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title" data-key="TotalProducts">Total Products</h5>
+                    <p class="card-text">
+                        <span data-key="TotalProductsValueLabel">Count:</span>
+                        {{ total_products }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Low Stock Alerts -->
+    <h2 class="text-center mb-4" data-key="LowStockAlerts">Low Stock Products</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th data-key="ProductName">Product Name</th>
+                    <th data-key="Quantity">Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in low_stock_products %}
+                <tr>
+                    <td>{{ product.ProductName }}</td>
+                    <td>{{ product.batches[0].Quantity }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="2" class="text-center text-muted" data-key="NoLowStock">No low stock products.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Current Stock Assignments -->
+    <h2 class="text-center mt-5" data-key="CurrentStockAssignments">Current Stock Assignments</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th data-key="SalesRep">Sales Rep</th>
+                    <th data-key="Product">Product</th>
+                    <th data-key="AssignedQuantity">Assigned Quantity</th>
+                    <th data-key="AssignedCostSAR">Assigned Cost (SAR)</th>
+                    <th data-key="SalesRevenueSAR">Sales Revenue (SAR)</th>
+                    <th data-key="ProfitLossSAR">Profit/Loss (SAR)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for detail in rep_stock_details %}
+                <tr>
+                    <td>{{ detail.rep }}</td>
+                    <td>{{ detail.product }}</td>
+                    <td>{{ detail.assigned_quantity }}</td>
+                    <td>{{ "%.2f" | format(detail.assigned_cost) }}</td>
+                    <td>{{ "%.2f" | format(detail.sales_revenue) }}</td>
+                    <td>{{ "%.2f" | format(detail.profit_or_loss) }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted" data-key="NoStockAssignments">No stock assignments found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Assign Stock Button -->
+    <div class="mt-4 text-center">
+        <a href="{{ url_for('assign_stock') }}" class="btn btn-primary w-100" data-key="AssignStockButton">Assign Stock to Sales Reps</a>
+    </div>
+    <br>
+    <br>
+
+    <!-- Monitor To-Visit List Button -->
+    <div class="mt-4 text-center">
+        <a href="{{ url_for('monitor_visits') }}" class="btn btn-primary" data-key="MonitorToVisitListButton">Monitor To-Visit List</a>
+    </div>
+    <br>
+    <br>
+
+    <!-- Sales Trends Chart -->
+    <h2 class="text-center mt-5" data-key="SalesTrends">Sales Trends</h2>
+    <canvas id="salesChart" width="400" height="200"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        const salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ sales_chart.labels | safe }},
+                datasets: [{
+                    label: 'Revenue (SAR)',
+                    data: {{ sales_chart.data | safe }},
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                }
+            }
+        });
+    </script>
+</div>
+{% endblock %}

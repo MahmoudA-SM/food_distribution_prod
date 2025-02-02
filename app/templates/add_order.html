@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Add Order{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4" data-key="AddOrder">
+        Add Order {% if customer %}for {{ customer.StoreName }}{% endif %}
+    </h1>
+    <form method="POST">
+        {% if not customer %}
+        <div class="mb-4">
+            <label for="customer_id" class="form-label" data-key="SelectCustomer">Select Customer</label>
+            <select id="customer-select" name="customer_id" class="form-select" required>
+                <option value="" disabled selected data-key="SelectCustomerPlaceholder">Select a customer</option>
+                {% for cust in customers %}
+                <option value="{{ cust.CustomerID }}" data-name="{{ cust.StoreName }}">{{ cust.StoreName }} - {{
+                    cust.District }}</option>
+                {% endfor %}
+            </select>
+            <input type="hidden" id="selected-customer-name" name="customer_name">
+        </div>
+        {% endif %}
+
+        <div id="order-items">
+            <div class="row g-3 mb-3 order-item">
+                <div class="col-12 col-md-4">
+                    <label for="product" class="form-label" data-key="Product">Product</label>
+                    <select class="form-select" name="product[]" required>
+                        {% for product in products %}
+                        <option value="{{ product.ProductID }}">{{ product.ProductName }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-6 col-md-2">
+                    <label for="quantity" class="form-label" data-key="Quantity">Quantity</label>
+                    <input type="text" inputmode="decimal" pattern="^\d+(\.\d{1,2})?$" step="0.5" class="form-control"
+                        name="quantity[]" required>
+                </div>
+                <div class="col-6 col-md-2">
+                    <label for="price_per_unit" class="form-label" data-key="PricePerUnit">Price/Unit</label>
+                    <input type="text" inputmode="decimal" pattern="^\d+(\.\d{1,2})?$" step="0.01" class="form-control"
+                        name="price_per_unit[]" required>
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label" data-key="Total">Total</label>
+                    <input type="text" class="form-control total" readonly>
+                </div>
+                <div class="col-6 col-md-2 d-flex align-items-end">
+                    <button type="button" class="btn btn-danger delete-item" style="display: none;"
+                        data-key="Delete">Delete</button>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between mt-3">
+            <button type="button" id="add-item" class="btn btn-secondary" data-key="AddItem">Add Item</button>
+            <div>
+                <strong data-key="TotalAmount">Total Amount: </strong><span id="total-amount">0</span>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3 w-100" data-key="AddOrder">Add Order</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const addItemButton = document.getElementById("add-item");
+        const orderItems = document.getElementById("order-items");
+        const totalAmountElement = document.getElementById("total-amount");
+
+        // Function to normalize Arabic numerals and decimals
+        function normalizeNumber(input) {
+            const arabicToWesternMap = {
+                "٠": "0", "١": "1", "٢": "2", "٣": "3", "٤": "4",
+                "٥": "5", "٦": "6", "٧": "7", "٨": "8", "٩": "9",
+                "٫": "." // Convert Arabic decimal point
+            };
+            return input.replace(/[٠-٩٫]/g, char => arabicToWesternMap[char] || char);
+        }
+
+        function updateDeleteButtons() {
+            const deleteButtons = document.querySelectorAll(".delete-item");
+            if (deleteButtons.length > 1) {
+                deleteButtons.forEach(button => button.style.display = "inline-block");
+            } else {
+                deleteButtons.forEach(button => button.style.display = "none");
+            }
+        }
+
+        function calculateTotal() {
+            let totalAmount = 0;
+            document.querySelectorAll(".order-item").forEach(item => {
+                const quantity = parseFloat(normalizeNumber(item.querySelector('[name="quantity[]"]').value)) || 0;
+                const pricePerUnit = parseFloat(normalizeNumber(item.querySelector('[name="price_per_unit[]"]').value)) || 0;
+                const total = quantity * pricePerUnit;
+                item.querySelector(".total").value = total.toFixed(2);
+                totalAmount += total;
+            });
+            totalAmountElement.textContent = totalAmount.toFixed(2);
+        }
+
+        orderItems.addEventListener("input", calculateTotal);
+
+        addItemButton.addEventListener("click", function () {
+            const newItem = document.querySelector(".order-item").cloneNode(true);
+            newItem.querySelectorAll("input").forEach(input => input.value = "");
+            newItem.querySelector(".total").value = "0.00";
+            newItem.querySelector(".delete-item").addEventListener("click", function () {
+                newItem.remove();
+                calculateTotal();
+                updateDeleteButtons();
+            });
+            orderItems.appendChild(newItem);
+            updateDeleteButtons();
+        });
+
+        document.querySelectorAll(".delete-item").forEach(button => {
+            button.addEventListener("click", function () {
+                button.closest(".order-item").remove();
+                calculateTotal();
+                updateDeleteButtons();
+            });
+        });
+
+        updateDeleteButtons();
+    });
+</script>
+
+{% endblock %}

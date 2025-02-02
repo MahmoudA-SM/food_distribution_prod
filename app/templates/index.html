@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Welcome Message -->
+    <h1 class="text-center mb-4" data-key="WelcomeMessage">Welcome to the Dashboard</h1>
+
+    <!-- Role-Specific Features -->
+    {% if session['role'] == 'admin' %}
+    <!-- Admin Section -->
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card card-custom text-center">
+                <div class="card-body">
+                    <h5 class="card-title" data-key="TotalCustomers">Total Customers</h5>
+                    <p class="card-text display-4">{{ total_customers or 0 }}</p>
+                    <a href="/customers" class="btn btn-primary" data-key="ViewCustomers">View Customers</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card card-custom text-center">
+                <div class="card-body">
+                    <h5 class="card-title" data-key="TotalOrders">Total Orders</h5>
+                    <p class="card-text display-4">{{ total_orders or 0 }}</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="/add_order" class="btn btn-success" data-key="AddOrder">Add Order</a>
+                        <a href="/orders" class="btn btn-primary" data-key="ViewOrders">View Orders</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card card-custom text-center">
+                <div class="card-body">
+                    <h5 class="card-title" data-key="LowStockProducts">Low Stock Products</h5>
+                    <p class="card-text display-4">{{ low_stock_products|length or 0 }}</p>
+                    <a href="/inventory" class="btn btn-primary" data-key="ViewInventory">View Inventory</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accounting Section -->
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card card-custom text-center">
+            <div class="card-body">
+                <h5 class="card-title" data-key="Accounting">Accounting</h5>
+                <p class="card-text display-4">{{ net_profit or 0 }}</p> <!-- Display net profit -->
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="/profit_loss" class="btn btn-primary" data-key="ViewProfitLoss">View Profit & Loss</a>
+                    <a href="/add_expense" class="btn btn-success" data-key="AddExpense">Add Expense</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    {% elif session['role'] == 'sales' %}
+    <!-- Sales Rep Section -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card card-custom text-center">
+                <div class="card-body">
+                    <h5 class="card-title" data-key="MyAssignedStock">My Assigned Stock</h5>
+                    <p class="card-text display-4">{{ assigned_stock or 0 }}</p>
+                    <a href="/view_assigned_stock" class="btn btn-primary" data-key="ViewStock">View Stock</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card card-custom text-center">
+                <div class="card-body">
+                    <h5 class="card-title" data-key="ToVisitList">To-Visit List</h5>
+                    <p class="card-text display-4">{{ to_visit_list|length or 0 }}</p>
+                    <a href="/to_visit" class="btn btn-primary" data-key="ViewVisits">View Visits</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

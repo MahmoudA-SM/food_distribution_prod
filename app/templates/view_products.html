@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}<span data-key="ProductList">Product List</span>{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4" data-key="ProductList">Product List</h1>
+
+    <!-- Products Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th data-key="ProductID">Product ID</th>
+                    <th data-key="ProductName">Product Name</th>
+                    <th data-key="PriceSAR">Price (SAR)</th>
+                    <th data-key="Actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if products %}
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product.ProductID }}</td>
+                        <td>{{ product.ProductName }}</td>
+                        <td>{{ "%.2f" | format(product.Price) }}</td>
+                        <td>
+                            <a href="{{ url_for('edit_product', product_id=product.ProductID) }}" class="btn btn-warning btn-sm" data-key="Edit">Edit</a>
+                            <a href="{{ url_for('add_stock', product_id=product.ProductID) }}" class="btn btn-primary btn-sm" data-key="AddStock">Add Stock</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted" data-key="NoProductsAvailable">No products available.</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

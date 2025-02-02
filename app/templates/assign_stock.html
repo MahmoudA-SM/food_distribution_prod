@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Assign Stock{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Assign Stock to Sales Representatives</h1>
+
+    <form method="POST">
+        <div class="mb-3">
+            <label for="sales_rep" class="form-label">Sales Representative:</label>
+            <select class="form-select" name="sales_rep" id="sales_rep" required>
+                {% for rep in sales_reps %}
+                <option value="{{ rep.RepID }}">{{ rep.user.Username }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="product" class="form-label">Product:</label>
+            <select class="form-select" name="product" id="product" required>
+                {% for product in products %}
+                <option value="{{ product.ProductID }}">{{ product.ProductName }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="quantity" class="form-label">Quantity:</label>
+            <input type="number" name="quantity" id="quantity" class="form-control" min="1" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Assign Stock</button>
+    </form>
+
+    <h2 class="mt-5">Current Stock Assignments</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Sales Rep</th>
+                    <th>Product</th>
+                    <th>Assigned Quantity</th>
+                    <th>Assigned Cost (SAR)</th>
+                    <th>Sales Revenue (SAR)</th>
+                    <th>Profit/Loss (SAR)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for detail in rep_stock_details %}
+                <tr>
+                    <td>{{ detail.rep }}</td>
+                    <td>{{ detail.product }}</td>
+                    <td>{{ detail.assigned_quantity }}</td>
+                    <td>{{ "%.2f" | format(detail.assigned_cost or 0) }}</td>
+                    <td>{{ "%.2f" | format(detail.sales_revenue) }}</td>
+                    <td>{{ "%.2f" | format(detail.profit_or_loss) }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No stock assignments found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

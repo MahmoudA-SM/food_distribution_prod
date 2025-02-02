@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}<span data-key="MonitorToVisitList">Monitor To-Visit List</span>{% endblock %}
+
+{% block content %}
+<h1 class="text-center mt-5" data-key="MonitorScheduledVisits">Monitor Scheduled Visits</h1>
+
+<form method="GET" action="{{ url_for('monitor_visits') }}" class="mb-4">
+    <div class="row">
+        <div class="col-md-4">
+            <input type="text" name="rep" class="form-control" placeholder="Search by Sales Rep" value="{{ request.args.get('rep', '') }}" data-key-placeholder="SearchBySalesRep">
+        </div>
+        <div class="col-md-4">
+            <input type="date" name="start_date" class="form-control" value="{{ request.args.get('start_date', '') }}" data-key-placeholder="StartDate">
+        </div>
+        <div class="col-md-4">
+            <input type="date" name="end_date" class="form-control" value="{{ request.args.get('end_date', '') }}" data-key-placeholder="EndDate">
+        </div>
+        <div class="col-md-4 mt-2">
+            <button type="submit" class="btn btn-primary" data-key="Filter">Filter</button>
+            <a href="{{ url_for('monitor_visits') }}" class="btn btn-secondary" data-key="Reset">Reset</a>
+        </div>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th data-key="SalesRep">Sales Rep</th>
+                <th data-key="Customer">Customer</th>
+                <th data-key="VisitDate">Visit Date</th>
+                <th data-key="Status">Status</th>
+                <th data-key="Notes">Notes</th>
+                <th data-key="Actions">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for visit in visits %}
+            <tr>
+                <td>{{ visit.rep.Username }}</td>
+                <td>{{ visit.customer.StoreName }}</td>
+                <td>{{ visit.visit_date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ visit.status }}</td>
+                <td>{{ visit.notes or "No Notes" }}</td>
+                <td>
+                    {% if visit.status == 'Pending' %}
+                    <form method="POST" action="{{ url_for('complete_visit', visit_id=visit.id) }}">
+                        <button type="submit" class="btn btn-success btn-sm" data-key="MarkAsCompleted">Mark as Completed</button>
+                    </form>
+                    {% else %}
+                    <span class="badge bg-success" data-key="Completed">Completed</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center text-muted" data-key="NoVisitsScheduled">No visits scheduled.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination Navigation -->
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if visits.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('monitor_visits', page=visits.prev_num) }}" data-key="Previous">Previous</a>
+        </li>
+        {% endif %}
+        {% if visits.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('monitor_visits', page=visits.next_num) }}" data-key="Next">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+
+{% endblock %}

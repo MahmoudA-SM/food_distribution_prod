@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}<span data-key="EditUser">Edit User</span>{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4" data-key="EditUser">Edit User</h1>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="username" class="form-label" data-key="Username">Username:</label>
+            <input type="text" class="form-control" name="username" id="username" value="{{ user.Username }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="role" class="form-label" data-key="Role">Role:</label>
+            <select class="form-select" name="role" id="role" required>
+                <option value="user" {% if user.Role=='user' %}selected{% endif %} data-key="UserRole">User</option>
+                <option value="admin" {% if user.Role=='admin' %}selected{% endif %} data-key="AdminRole">Admin</option>
+                <option value="manager" {% if user.Role=='manager' %}selected{% endif %} data-key="ManagerRole">Manager
+                </option>
+                <option value="sales" {% if user.Role=='sales' %}selected{% endif %} data-key="SalesRole">Sales
+                    Representative</option>
+                <option value="inventory" {% if user.Role=='inventory' %}selected{% endif %} data-key="InventoryRole">
+                    Inventory Manager</option>
+                <option value="delivery" {% if user.Role=='delivery' %}selected{% endif %} data-key="DeliveryRole">
+                    Delivery Personnel</option>
+                <option value="support" {% if user.Role=='support' %}selected{% endif %} data-key="SupportRole">Customer
+                    Support</option>
+                <option value="viewer" {% if user.Role=='viewer' %}selected{% endif %} data-key="ViewerRole">Viewer
+                </option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="new_password" class="form-label" data-key="NewPassword">New Password:</label>
+            <input type="password" class="form-control" name="new_password" id="new_password"
+                placeholder="Leave blank to keep current password" data-key-placeholder="LeavePasswordBlank">
+        </div>
+        <button type="submit" class="btn btn-primary w-100" data-key="SaveChanges">Save Changes</button>
+    </form>
+</div>
+{% endblock %}

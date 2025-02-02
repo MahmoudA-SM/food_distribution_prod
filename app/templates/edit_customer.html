@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Customer{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4" data-key="EditCustomer">Edit Customer</h1>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="store_name" class="form-label" data-key="StoreName">Store Name</label>
+            <input type="text" class="form-control" id="store_name" name="store_name" value="{{ customer.StoreName }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="street_name" class="form-label" data-key="StreetName">Street Name</label>
+            <input type="text" class="form-control" id="street_name" name="street_name" value="{{ customer.StreetName }}">
+        </div>
+        <div class="mb-3">
+            <label for="district" class="form-label" data-key="District">District</label>
+            <input type="text" class="form-control" id="district" name="district" value="{{ customer.District }}">
+        </div>
+        <div class="mb-3">
+            <label for="contact_person" class="form-label" data-key="ContactPerson">Contact Person</label>
+            <input type="text" class="form-control" id="contact_person" name="contact_person" value="{{ customer.ContactPerson }}">
+        </div>
+        <div class="mb-3">
+            <label for="contact_phone" class="form-label" data-key="ContactPhone">Contact Phone</label>
+            <input type="text" class="form-control" id="contact_phone" name="contact_phone" value="{{ customer.ContactPhone }}">
+        </div>
+        <div class="mb-3">
+            <label for="location" class="form-label" data-key="Location">Location</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="location" name="location" value="{{ customer.Location }}">
+                <button type="button" class="btn btn-primary" id="getLocation" data-key="GetLocation">Get Location</button>
+            </div>
+            <small class="form-text text-muted" data-key="GetLocationHint">Click the "Get Location" button to fill the location field automatically.</small>
+        </div>
+        <div class="mb-3">
+            <label for="notes" class="form-label" data-key="Notes">Notes</label>
+            <textarea class="form-control" id="notes" name="notes">{{ customer.Notes }}</textarea>
+        </div>
+        <div class="d-grid">
+            <button type="submit" class="btn btn-primary" data-key="SaveChanges">Save Changes</button>
+        </div>
+    </form>
+    <div class="mt-3">
+        <a href="{{ url_for('customers') }}" class="btn btn-secondary w-100" data-key="Cancel">Cancel</a>
+    </div>
+</div>
+
+<script>
+    document.getElementById('getLocation').addEventListener('click', function () {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                const googleMapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+                document.getElementById('location').value = googleMapsLink;
+            }, function (error) {
+                alert("Error getting location: " + error.message);
+            });
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    });
+</script>
+{% endblock %}

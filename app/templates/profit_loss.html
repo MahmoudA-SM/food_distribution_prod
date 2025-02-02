@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Profit/Loss Report{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center">Profit/Loss Report</h1>
+
+    <div class="mt-4">
+        <p><strong>Total Income (from Orders):</strong> {{ "%.2f" | format(total_income) }} SAR</p>
+        <p><strong>Total Expenses:</strong> {{ "%.2f" | format(total_expenses) }} SAR</p>
+        <p><strong>Net Profit/Loss:</strong> {{ "%.2f" | format(net_profit_loss) }} SAR</p>
+    </div>
+
+    <h2 class="mt-4">Expense Breakdown</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Amount (SAR)</th>
+                <th>Date</th>
+                <th>Category</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expense in expenses %}
+            <tr>
+                <td>{{ expense.Description }}</td>
+                <td>{{ "%.2f" | format(expense.Amount) }}</td>
+                <td>{{ expense.Date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ expense.Category }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('add_expense') }}" class="btn btn-primary">Add Expense</a>
+    </div>
+</div>
+{% endblock %}

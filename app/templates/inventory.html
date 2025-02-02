@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4" data-key="InventoryManagement">Inventory Management</h1>
+
+    <!-- Add Product Button Container -->
+    <div class="d-flex justify-content-start mb-3" id="add-product-container">
+        <a href="{{ url_for('add_product') }}" class="btn btn-success" data-key="AddProduct">Add Product</a>
+    </div>
+
+    <!-- Low Stock Alerts -->
+    <div class="alert alert-warning text-center" data-key="LowStockAlert">
+        Products with <strong>less than 5 units</strong> are marked as low stock.
+    </div>
+
+    <!-- Inventory Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th data-key="ProductName">Product Name</th>
+                    <th data-key="BatchID">Batch ID</th>
+                    <th data-key="Quantity">Quantity</th>
+                    <th data-key="PurchasePrice">Purchase Price</th>
+                    <th data-key="PurchaseDate">Purchase Date</th>
+                    <th data-key="Actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if products %}
+                {% for product in products %}
+                <tr {% if product.is_low_stock %} class="table-danger" {% elif product.BatchID is none %}
+                    class="table-warning" {% endif %}>
+                    <td>{{ product.ProductName }}</td>
+                    <td>{{ product.BatchID or 'N/A' }}</td>
+                    <td>
+                        {{ product.Quantity or 0 }}
+                        {% if product.is_low_stock %}
+                        <span class="badge bg-danger ms-2" data-key="LowStock">Low Stock</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ "%.2f" | format(product.PurchasePrice or 0.00) }} SAR</td>
+                    <td>{{ product.PurchaseDate.strftime('%d-%m-%Y') if product.PurchaseDate else 'N/A' }}</td>
+                    <td>
+                        <a href="{{ url_for('add_stock', product_id=product.ProductID) }}"
+                            class="btn btn-primary btn-sm" data-key="AddStock">
+                            Add Stock
+                        </a>
+                        <form action="{{ url_for('remove_product', product_id=product.ProductID) }}" method="POST"
+                            style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" data-key="Remove">Remove</button>
+                        </form>
+                        <form
+                            action="{% if product.BatchID %}{{ url_for('delete_batch', batch_id=product.BatchID) }}{% else %}#{% endif %}"
+                            method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" data-key="DeleteBatch" {% if not
+                                product.BatchID %}disabled{% endif %}>
+                                Delete Batch
+                            </button>
+                        </form>
+
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted" data-key="NoProductsAvailable">No products available.
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

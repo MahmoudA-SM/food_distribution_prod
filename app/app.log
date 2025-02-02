@@ -1,0 +1,14 @@
+2025-01-26 11:29:59,026 - ERROR - Error editing order ID 29: 'Batch' object has no attribute 'OriginalQuantity' [in C:\Users\momou\Desktop\Food Distribution\app\main.py:1107]
+Traceback (most recent call last):
+  File "C:\Users\momou\Desktop\Food Distribution\app\main.py", line 1046, in edit_order
+    add_amount = min(remaining_to_add, batch.OriginalQuantity - batch.Quantity)
+                                       ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Batch' object has no attribute 'OriginalQuantity'
+2025-01-26 11:33:50,428 - ERROR - Error editing order ID 29: 'Batch' object has no attribute 'OriginalQuantity' [in C:\Users\momou\Desktop\Food Distribution\app\main.py:1107]
+Traceback (most recent call last):
+  File "C:\Users\momou\Desktop\Food Distribution\app\main.py", line 1046, in edit_order
+    add_amount = min(remaining_to_add, batch.OriginalQuantity - batch.Quantity)
+                                       ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Batch' object has no attribute 'OriginalQuantity'
+2025-01-26 11:43:46,942 - INFO - Order ID 29 edited successfully by user 1. [in C:\Users\momou\Desktop\Food Distribution\app\main.py:1099]
+2025-01-26 11:44:38,000 - INFO - Order ID 29 edited successfully by user 1. [in C:\Users\momou\Desktop\Food Distribution\app\main.py:1099]

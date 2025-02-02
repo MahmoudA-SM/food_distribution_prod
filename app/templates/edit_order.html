@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Order{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center" data-key="EditOrder">Edit Order</h1>
+    <form method="POST" class="mt-4">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th data-key="Product">Product</th>
+                    <th data-key="Quantity">Quantity</th>
+                    <th data-key="PricePerUnit">Price Per Unit (SAR)</th>
+                    <th data-key="Subtotal">Subtotal (SAR)</th>
+                </tr>
+            </thead>
+            <tbody id="order-items">
+                {% for detail in order_details %}
+                <tr>
+                    <td>
+                        <select name="product[]" class="form-select">
+                            {% for product in products %}
+                            <option value="{{ product.ProductID }}" 
+                                {% if product.ProductID == detail.ProductID %}selected{% endif %}>
+                                {{ product.ProductName }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" name="quantity[]" class="form-control" value="{{ detail.Quantity }}" min="1" required>
+                    </td>
+                    <td>
+                        <input type="number" name="price_per_unit[]" class="form-control" value="{{ detail.PricePerUnit }}" step="0.01" min="0.01" required>
+                    </td>
+                    <td>
+                        {{ detail.Quantity * detail.PricePerUnit }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-primary w-100" data-key="SaveChanges">Save Changes</button>
+    </form>
+    <a href="{{ url_for('view_order_details', order_id=order.OrderID) }}" class="btn btn-secondary mt-3" data-key="Cancel">Cancel</a>
+</div>
+{% endblock %}

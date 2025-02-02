@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Add Product{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4" data-key="AddProduct">Add Product</h1>
+    <form method="POST" action="/add_product">
+        <div class="mb-3">
+            <label for="product_name" class="form-label" data-key="ProductName">Product Name</label>
+            <input type="text" class="form-control" id="product_name" name="product_name" required>
+        </div>
+        <div class="mb-3">
+            <label for="base_price" class="form-label" data-key="BasePrice">Base Price</label>
+            <input type="number" step="0.01" class="form-control" id="base_price" name="base_price" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100" data-key="AddProductButton">Add Product</button>
+    </form>
+</div>
+{% endblock %}

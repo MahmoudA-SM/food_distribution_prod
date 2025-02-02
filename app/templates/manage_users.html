@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}<span data-key="ManageUsers">Manage Users</span>{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4" data-key="ManageUsers">Manage Users</h1>
+
+    <!-- User Table -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th data-key="UserID">User ID</th>
+                    <th data-key="Username">Username</th>
+                    <th data-key="Role">Role</th>
+                    <th data-key="Actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if users %}
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.UserID }}</td>
+                        <td>{{ user.Username }}</td>
+                        <td>{{ user.Role }}</td>
+                        <td>
+                            <!-- Edit User Button -->
+                            <a href="{{ url_for('edit_user', user_id=user.UserID) }}" class="btn btn-primary btn-sm" data-key="Edit">Edit</a>
+                            <!-- Delete User Button -->
+                            <form action="{{ url_for('delete_user', user_id=user.UserID) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this user?');" data-key="Delete">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted" data-key="NoUsersFound">No users found.</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add User Button -->
+    <div class="text-center mt-4">
+        <a href="{{ url_for('register') }}" class="btn btn-success" data-key="AddNewUser">Add New User</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Order Details{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Order Details</h1>
+
+    <h3>Order Information</h3>
+    <p><strong>Order ID:</strong> {{ order.OrderID }}</p>
+    <p><strong>Customer:</strong> {{ order.customer.StoreName }}</p>
+    <p><strong>Total Amount:</strong> 
+        {{ "%.2f" | format(order_details|map(attribute='Quantity')|sum * order_details|map(attribute='PricePerUnit')|sum) }} SAR
+    </p>
+    <p><strong>Order Date:</strong> {{ order.OrderDate.strftime('%Y-%m-%d') }}</p>
+
+    <h3>Products in Order</h3>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    <th>Price per Unit</th>
+                    <th>Total Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for detail in order_details %}
+                <tr>
+                    <td>{{ detail.product.ProductName }}</td>
+                    <td>{{ detail.Quantity }}</td>
+                    <td>{{ "%.2f" | format(detail.PricePerUnit) }} SAR</td>
+                    <td>{{ "%.2f" | format(detail.Quantity * detail.PricePerUnit) }} SAR</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">No products found in this order.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if session['role'] == 'admin' %}
+    <div class="mt-4">
+        <a href="{{ url_for('edit_order', order_id=order.OrderID) }}" class="btn btn-warning w-100">Edit Order</a>
+    </div>
+    {% endif %}
+    
+    <div class="mt-2">
+        <a href="{{ url_for('view_orders', customer_id=order.CustomerID) }}" class="btn btn-secondary w-100">Back to Orders</a>
+    </div>
+</div>
+{% endblock %}

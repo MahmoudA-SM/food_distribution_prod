@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Add Product to Order{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4" data-key="AddProductToOrder">Add Product to Order</h1>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="product_id" class="form-label" data-key="Product">Product</label>
+            <select class="form-select" id="product_id" name="product_id" required>
+                {% for product in products %}
+                <option value="{{ product.ProductID }}">{{ product.ProductName }} - {{ "%.2f" | format(product.UnitPrice) }} SAR</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="quantity" class="form-label" data-key="Quantity">Quantity</label>
+            <input type="number" class="form-control" id="quantity" name="quantity" min="1" required>
+        </div>
+        <div class="d-grid">
+            <button type="submit" class="btn btn-primary" data-key="AddProduct">Add Product</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

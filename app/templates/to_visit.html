@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}To-Visit List{% endblock %}
+
+{% block content %}
+<h1 class="text-center mt-5">To-Visit List</h1>
+<a href="/customers" class="btn btn-primary mb-3">Add Customers</a>
+
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Priority</th>
+                <th>Planned Visit Date</th>
+                <th>Notes</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in to_visit_list %}
+            <tr>
+                <td>{{ entry.customer.StoreName }}</td>
+                <td>{{ entry.priority }}</td>
+                <td>{{ entry.visit_date }}</td>
+                <td>{{ entry.notes }}</td>
+                <td>
+                    <form action="/remove_to_visit/{{ entry.id }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center">No customers in the to-visit list.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

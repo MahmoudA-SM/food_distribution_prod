@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Add Customer{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4" data-key="AddCustomer">Add Customer</h1>
+    <form method="POST" action="/add_customer">
+        <div class="mb-3">
+            <label for="store_name" class="form-label" data-key="StoreName">Store Name</label>
+            <input type="text" class="form-control" id="store_name" name="store_name" required>
+        </div>
+        <div class="mb-3">
+            <label for="street_name" class="form-label" data-key="StreetName">Street Name</label>
+            <input type="text" class="form-control" id="street_name" name="street_name" required>
+        </div>
+        <div class="mb-3">
+            <label for="district" class="form-label" data-key="District">District</label>
+            <input type="text" class="form-control" id="district" name="district" required>
+        </div>
+        <div class="mb-3">
+            <label for="contact_person" class="form-label" data-key="ContactPerson">Contact Person</label>
+            <input type="text" class="form-control" id="contact_person" name="contact_person">
+        </div>
+        <div class="mb-3">
+            <label for="contact_phone" class="form-label" data-key="ContactPhone">Contact Phone</label>
+            <input type="text" class="form-control" id="contact_phone" name="contact_phone">
+        </div>
+        <div class="mb-3">
+            <label for="location" class="form-label" data-key="Location">Location</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="location" name="location" placeholder="Enter Google Maps link or coordinates">
+                <button type="button" class="btn btn-outline-secondary" onclick="getCurrentLocation()" data-key="GetCurrentLocation">Get Current Location</button>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="notes" class="form-label" data-key="Notes">Notes</label>
+            <textarea class="form-control" id="notes" name="notes" rows="4"></textarea>
+        </div>
+        <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-block" data-key="AddCustomer">Add Customer</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function getCurrentLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    const locationInput = document.getElementById('location');
+                    locationInput.value = `https://www.google.com/maps?q=${latitude},${longitude}`;
+                },
+                (error) => {
+                    alert('Error getting location: ' + error.message);
+                }
+            );
+        } else {
+            alert('Geolocation is not supported by this browser.');
+        }
+    }
+</script>
+
+{% endblock %}

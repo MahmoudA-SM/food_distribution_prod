@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}<span data-key="Login">Login</span>{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center" data-key="Login">Login</h1>
+    <form method="POST" class="mt-4">
+        <div class="mb-3">
+            <label for="username" class="form-label" data-key="Username">Username:</label>
+            <input 
+                type="text" 
+                class="form-control" 
+                name="username" 
+                id="username" 
+                placeholder="Enter your username" 
+                data-key-placeholder="EnterYourUsername"
+                required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label" data-key="Password">Password:</label>
+            <input 
+                type="password" 
+                class="form-control" 
+                name="password" 
+                id="password" 
+                placeholder="Enter your password" 
+                data-key-placeholder="EnterYourPassword"
+                required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100" data-key="Login">Login</button>
+    </form>
+</div>
+{% endblock %}

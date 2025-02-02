@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}<span data-key="SalesRepDashboard">Sales Rep Dashboard</span>{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4" data-key="SalesRepDashboard">Sales Rep Dashboard</h1>
+
+    <!-- Key Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title" data-key="TotalSalesThisMonth">Total Sales This Month</h5>
+                    <p class="card-text">{{ "%.2f" | format(total_sales) }} SAR</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title" data-key="CommissionEarned">Commission Earned</h5>
+                    <p class="card-text">{{ "%.2f" | format(commission_earned) }} SAR</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Section -->
+    <div class="mb-4">
+        <h2 data-key="Orders">Orders</h2>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th data-key="OrderID">Order ID</th>
+                        <th data-key="Customer">Customer</th>
+                        <th data-key="OrderDate">Order Date</th>
+                        <th data-key="TotalAmount">Total Amount (SAR)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if orders %}
+                        {% for order in orders %}
+                        <tr>
+                            <td>{{ order.OrderID }}</td>
+                            <td>{{ order.customer.StoreName }}</td>
+                            <td>{{ order.OrderDate.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ "%.2f" | format(order.TotalAmount) }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted" data-key="NoOrdersFound">No orders found for this month.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Assigned Stock Section -->
+    <div class="mb-4">
+        <h2 data-key="AssignedStock">Assigned Stock</h2>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th data-key="ProductName">Product Name</th>
+                        <th data-key="AssignedQuantity">Assigned Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if assigned_stock %}
+                        {% for stock in assigned_stock %}
+                        <tr>
+                            <td>{{ stock.product.ProductName }}</td>
+                            <td>{{ stock.Quantity }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="2" class="text-center text-muted" data-key="NoStockAssigned">No stock assigned.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

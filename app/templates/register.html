@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}<h1 data-key="Register">Register</h1>{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center" data-key="Register">Register</h1>
+    <form method="POST" class="mt-4">
+        <div class="mb-3">
+            <label for="username" class="form-label" data-key="Username">Username:</label>
+            <input 
+                type="text" 
+                class="form-control" 
+                name="username" 
+                id="username" 
+                placeholder="Enter your username" 
+                data-key-placeholder="EnterYourUsername"
+                required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label" data-key="Password">Password:</label>
+            <input 
+                type="password" 
+                class="form-control" 
+                name="password" 
+                id="password" 
+                placeholder="Enter your password" 
+                data-key-placeholder="EnterYourPassword"
+                required>
+        </div>
+        <div class="mb-3">
+            <label for="role" class="form-label" data-key="Role">Role:</label>
+            <select class="form-select" name="role" id="role" required>
+                <option value="user" data-key="UserRole">User</option>
+                <option value="admin" data-key="AdminRole">Admin</option>
+                <option value="manager" data-key="ManagerRole">Manager</option>
+                <option value="sales" data-key="SalesRole">Sales Representative</option>
+                <option value="inventory" data-key="InventoryRole">Inventory Manager</option>
+                <option value="delivery" data-key="DeliveryRole">Delivery Personnel</option>
+                <option value="support" data-key="SupportRole">Customer Support</option>
+                <option value="viewer" data-key="ViewerRole">Viewer</option>
+            </select>
+        </div>
+        <div id="sales-fields" style="display: none;">
+            <div class="mb-3">
+                <label for="commission_rate" class="form-label" data-key="CommissionRate">Commission Rate (%):</label>
+                <input 
+                    type="number" 
+                    step="0.01" 
+                    name="commission_rate" 
+                    id="commission_rate" 
+                    class="form-control"
+                    min="0" 
+                    placeholder="e.g., 3.0"
+                    data-key-placeholder="CommissionRatePlaceholder">
+            </div>
+            <div class="mb-3">
+                <label for="monthly_target" class="form-label" data-key="MonthlyTarget">Monthly Target (SAR):</label>
+                <input 
+                    type="number" 
+                    step="0.01" 
+                    name="monthly_target" 
+                    id="monthly_target" 
+                    class="form-control"
+                    min="0" 
+                    placeholder="e.g., 65000"
+                    data-key-placeholder="MonthlyTargetPlaceholder">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary w-100" data-key="RegisterButton">Register</button>
+    </form>
+</div>
+
+<script>
+    // Show the commission rate and monthly target fields only if 'sales' role is selected
+    document.getElementById('role').addEventListener('change', function () {
+        const salesFields = document.getElementById('sales-fields');
+        if (this.value === 'sales') {
+            salesFields.style.display = 'block';
+        } else {
+            salesFields.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#007bff">
+
+    <title>{% block title %}Food Distribution{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/css/pikaday.min.css">
+    <link rel="manifest" href="/static/manifest.json">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        /* RTL-specific styles */
+        body.rtl .navbar-nav {
+            direction: rtl;
+            text-align: right;
+        }
+
+        body.rtl .dropdown-menu {
+            text-align: right;
+            right: auto;
+            left: 0;
+        }
+
+        body.rtl .navbar-nav .dropdown-menu {
+            right: 0;
+            left: auto;
+        }
+
+        body.rtl .navbar-nav .nav-item {
+            margin-left: 0;
+            margin-right: 0.5rem;
+            /* Adjust spacing for RTL */
+        }
+
+        body.rtl .navbar-nav.ms-auto {
+            margin-left: 0 !important;
+            margin-right: auto !important;
+        }
+
+        body.rtl .navbar-nav.me-auto {
+            margin-right: 0 !important;
+            margin-left: auto !important;
+        }
+
+        /* Ensure dropdown arrows are on the correct side in RTL */
+        body.rtl .dropdown-toggle::after {
+            margin-left: 0;
+            margin-right: 0.255em;
+        }
+
+        body.rtl {
+            direction: rtl;
+            text-align: right;
+        }
+
+        /* Highlight: Ensure the language toggle is visible and positioned correctly */
+        #toggle-lang-container {
+            position: absolute;
+            /* Highlight: Changed to absolute positioning */
+            top: 70px;
+            /* Adjusted to appear below the navbar */
+            right: 15px;
+            /* Default position for LTR */
+            display: flex;
+            gap: 10px;
+            z-index: 1050;
+            /* Ensure it's above other content */
+        }
+
+        /* Highlight: Adjust for RTL layout */
+        body.rtl #toggle-lang-container {
+            right: auto;
+            /* Reset right for RTL */
+            left: 15px;
+            /* Position on the left for RTL */
+        }
+
+        /* Highlight: Ensure navbar has a higher z-index than the toggle container */
+        .navbar {
+            z-index: 1070;
+            /* Higher than #toggle-lang-container */
+            position: relative;
+            /* Ensure z-index works */
+        }
+
+        /* Highlight: Ensure the burger menu is above the navbar */
+        .navbar-toggler {
+            z-index: 1080;
+            /* Higher than the navbar */
+        }
+
+        /* Highlight: Adjusted mobile positioning */
+        @media (max-width: 768px) {
+            #toggle-lang-container {
+                top: 60px;
+                /* Adjust position on mobile */
+            }
+        }
+
+        @media (max-width: 768px) {
+            table {
+                font-size: 0.9em;
+            }
+        }
+
+        .card-custom {
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .navbar-custom {
+            background-color: #f8f9fa;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-custom">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/" data-key="AppName">Food Distribution</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <!-- Dashboard -->
+                    {% if session.role in ['admin', 'sales'] %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard" data-key="Dashboard">Dashboard</a>
+                    </li>
+                    {% endif %}
+
+                    <!-- Customers Dropdown -->
+                    {% if session.role in ['admin', 'manager', 'sales'] %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="customersDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false" data-key="Customers">
+                            Customers
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="customersDropdown">
+                            <li>
+                                <a class="dropdown-item" href="/customers" data-key="CustomerList">Customer List</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/add_customer" data-key="AddCustomer">Add Customer</a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% endif %}
+
+                    <!-- Inventory -->
+                    {% if session.role in ['admin', 'manager', 'inventory'] %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/inventory" data-key="Inventory">Inventory</a>
+                    </li>
+                    {% endif %}
+
+                    <!-- Accounting Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="accountingDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false" data-key="Accounting">
+                            Accounting
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="accountingDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('profit_loss') }}"
+                                    data-key="ViewProfitLoss">View Profit/Loss Report</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('add_expense') }}" data-key="AddExpense">Add
+                                    Expense</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <!-- Right-Aligned Items -->
+                <ul class="navbar-nav ms-auto">
+                    <!-- Register (Admin Only) -->
+                    {% if session.role == 'admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/register" data-key="Register">Register</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Language Toggle and Conditional Logout Button -->
+    <div id="toggle-lang-container">
+        <button class="btn btn-outline-primary" id="toggle-lang">
+            {% if session.get('language', 'en') == 'ar' %}Eng{% else %}عربي{% endif %}
+        </button>
+        {% if session.get('user_id') %}
+        <a href="{{ url_for('logout') }}" class="btn btn-outline-danger" data-key="Logout">Logout</a>
+        {% endif %}
+    </div>
+
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Page Content -->
+    <div class="container mt-5">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/service-worker.js')
+                .then((registration) => {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                })
+                .catch((error) => {
+                    console.log('ServiceWorker registration failed: ', error);
+                });
+        }
+    </script>
+
+    <script>
+        const toggleLangButton = document.getElementById('toggle-lang');
+        const body = document.body;
+
+        // Language-specific translations for all static text
+        const translations = {
+            eng: {
+                "AddOrder": "Add Order",
+                "Product": "Product",
+                "Quantity": "Quantity",
+                "PricePerUnit": "Price/Unit",
+                "Total": "Total",
+                "Delete": "Delete",
+                "AddItem": "Add Item",
+                "TotalAmount": "Total Amount",
+                "OrdersFor": "Orders for",
+                "OrderID": "Order ID",
+                "OrderDate": "Order Date",
+                "ViewDetails": "View Details",
+                "NoOrders": "No orders available for this customer.",
+                "OrderDetails": "Order Details",
+                "CustomerName": "Customer Name",
+                "AddProduct": "Add Product",
+                "ProductName": "Product Name",
+                "UnitPrice": "Unit Price",
+                "Subtotal": "Subtotal",
+                "NoProductsAdded": "No products have been added to this order yet. Click 'Add Product' to get started.",
+                "AddProductToOrder": "Add Product to Order",
+                "AppName": "Food Distribution",
+                "Dashboard": "Dashboard",
+                "CustomerList": "Customer List",
+                "AddCustomer": "Add Customer",
+                "SearchCustomer": "Search Customer",
+                "Logout": "Logout",
+                "CustomerID": "Customer ID",
+                "StoreName": "Store Name",
+                "StreetName": "Street Name",
+                "District": "District",
+                "ContactPerson": "Contact Person",
+                "ContactPhone": "Contact Phone",
+                "Notes": "Notes",
+                "AddOrder": "Add Order",
+                "ViewOrders": "View Orders",
+                "OrderID": "Order ID",
+                "OrderDate": "Order Date",
+                "TotalAmount": "Total Amount",
+                "Actions": "Actions",
+                "ViewDetails": "View Details",
+                "Delete": "Delete",
+                "AddProduct": "Add Product",
+                "ProductName": "Product Name",
+                "UnitPrice": "Unit Price",
+                "Quantity": "Quantity",
+                "Subtotal": "Subtotal",
+                "AddStock": "Add Stock",
+                "PurchasePrice": "Purchase Price",
+                "PurchaseDate": "Purchase Date",
+                "LowStock": "Low Stock",
+                "NoProducts": "No products available.",
+                "NoCustomers": "No customers found.",
+                "NoOrders": "No orders available.",
+                "SearchQuery": "Search Query",
+                "SearchBy": "Search By",
+                "Search": "Search",
+                "Reset": "Reset",
+                "Username": "Username",
+                "Password": "Password",
+                "Login": "Login",
+                "Register": "Register",
+                "Offline": "You're Offline",
+                "OfflineMessage": "Please check your internet connection and try again.",
+                "Location": "Location",
+                "GetCurrentLocation": "Get Current Location",
+                "ViewLocation": "View Location",
+                "NoLocation": "No location",
+                "WelcomeMessage": "Welcome to the Dashboard",
+                "TotalCustomers": "Total Customers",
+                "ManageCustomers": "Manage Customers",
+                "TotalOrders": "Total Orders",
+                "ViewOrders": "View Orders",
+                "LowStockProducts": "Low Stock Products",
+                "ViewInventory": "View Inventory",
+                "Inventory": "Inventory",
+                "MyAssignedStock": "My Assigned Stock",
+                "ViewStock": "View Stock",
+                "ToVisitList": "To-Visit List",
+                "ViewVisits": "View Visits",
+                "ViewCustomers": "View Customers",
+                "AddOrder": "Add Order",
+                "SelectCustomer": "Select Customer",
+                "SelectCustomerPlaceholder": "Select a customer",
+                "AddProduct": "Add Product",
+                "ProductName": "Product Name",
+                "BasePrice": "Base Price",
+                "AddProductButton": "Add Product",
+                "Edit": "Edit",
+                "AddNotesPlaceholder": "Add notes",
+                "ScheduleVisit": "Schedule Visit",
+                "NoCustomers": "No customers found matching the criteria.",
+                "CustomerList": "Customer List",
+                "FilterStreetNamePlaceholder": "Filter by Street Name",
+                "FilterDistrictPlaceholder": "Filter by District",
+                "Search": "Search",
+                "Reset": "Reset",
+                "CustomerID": "ID",
+                "StoreName": "Store Name",
+                "StreetName": "Street Name",
+                "District": "District",
+                "ContactPerson": "Contact Person",
+                "ContactPhone": "Contact Phone",
+                "Location": "Location",
+                "Notes": "Notes",
+                "Actions": "Actions",
+                "NoPhone": "No Phone",
+                "ViewLocation": "View Location",
+                "NoLocation": "No location",
+                "Edit": "Edit",
+                "ViewOrders": "View Orders",
+                "AddNotesPlaceholder": "Add notes",
+                "ScheduleVisit": "Schedule Visit",
+                "NoCustomers": "No customers found matching the criteria.",
+                "EditOrder": "Edit Order",
+                "EditUser": "Edit User",
+                "Username": "Username",
+                "Role": "Role",
+                "UserRole": "User",
+                "AdminRole": "Admin",
+                "ManagerRole": "Manager",
+                "SalesRole": "Sales Representative",
+                "InventoryRole": "Inventory Manager",
+                "DeliveryRole": "Delivery Personnel",
+                "SupportRole": "Customer Support",
+                "ViewerRole": "Viewer",
+                "NewPassword": "New Password",
+                "LeavePasswordBlank": "Leave blank to keep current password",
+                "SaveChanges": "Save Changes",
+                "Remove": "Remove",
+                "InventoryManagement": "Inventory Management",
+                // "LowStockAlert": "Products with <strong>less than 5 units</strong> are marked as low stock.",
+                "BatchID": "Batch ID",
+                "NoProductsAvailable": "No products available.",
+                "Login": "Login",
+                "Username": "Username:",
+                "Password": "Password:",
+                "EnterYourUsername": "Enter your username",
+                "EnterYourPassword": "Enter your password",
+                "ManageUsers": "Manage Users",
+                "UserID": "User ID",
+                "Username": "Username",
+                "Role": "Role",
+                "Actions": "Actions",
+                "Edit": "Edit",
+                "Delete": "Delete",
+                "NoUsersFound": "No users found.",
+                "AddNewUser": "Add New User",
+                "Are you sure you want to delete this user?": "Are you sure you want to delete this user?",
+                "MonitorToVisitList": "Monitor To-Visit List",
+                "MonitorScheduledVisits": "Monitor Scheduled Visits",
+                "SearchBySalesRep": "Search by Sales Rep",
+                "StartDate": "Start Date",
+                "EndDate": "End Date",
+                "Filter": "Filter",
+                "Reset": "Reset",
+                "SalesRep": "Sales Rep",
+                "Customer": "Customer",
+                "VisitDate": "Visit Date",
+                "Status": "Status",
+                "Notes": "Notes",
+                "Actions": "Actions",
+                "MarkAsCompleted": "Mark as Completed",
+                "Completed": "Completed",
+                "NoVisitsScheduled": "No visits scheduled.",
+                "Previous": "Previous",
+                "Next": "Next", "Register": "Register",
+                "Username": "Username:",
+                "Password": "Password:",
+                "EnterYourUsername": "Enter your username",
+                "EnterYourPassword": "Enter your password",
+                "Role": "Role:",
+                "UserRole": "User",
+                "AdminRole": "Admin",
+                "ManagerRole": "Manager",
+                "SalesRole": "Sales Representative",
+                "InventoryRole": "Inventory Manager",
+                "DeliveryRole": "Delivery Personnel",
+                "SupportRole": "Customer Support",
+                "ViewerRole": "Viewer",
+                "CommissionRate": "Commission Rate (%):",
+                "CommissionRatePlaceholder": "e.g., 3.0",
+                "MonthlyTarget": "Monthly Target (SAR):",
+                "MonthlyTargetPlaceholder": "e.g., 65000",
+                "RegisterButton": "Register",
+                "SalesRepDashboard": "Sales Rep Dashboard",
+                "TotalSalesThisMonth": "Total Sales This Month",
+                "CommissionEarned": "Commission Earned",
+                "Orders": "Orders",
+                "OrderID": "Order ID",
+                "Customer": "Customer",
+                "OrderDate": "Order Date",
+                "TotalAmount": "Total Amount (SAR)",
+                "NoOrdersFound": "No orders found for this month.",
+                "AssignedStock": "Assigned Stock",
+                "ProductName": "Product Name",
+                "AssignedQuantity": "Assigned Quantity",
+                "NoStockAssigned": "No stock assigned.",
+                "DashboardTitle": "Dashboard",
+                "TotalCustomers": "Total Customers",
+                "TotalCustomersValueLabel": "Count:",
+                "PendingVisits": "Pending Visits",
+                "PendingVisitsValueLabel": "Count:",
+                "CompletedVisits": "Completed Visits",
+                "CompletedVisitsValueLabel": "Count:",
+                "TotalOrders": "Total Orders",
+                "TotalOrdersValueLabel": "Count:",
+                "TotalRevenue": "Total Revenue",
+                "TotalRevenueValueLabel": "SAR:",
+                "TotalProducts": "Total Products",
+                "TotalProductsValueLabel": "Count:",
+                "LowStockAlerts": "Low Stock Products",
+                "ProductName": "Product Name",
+                "Quantity": "Quantity",
+                "NoLowStock": "No low stock products.",
+                "CurrentStockAssignments": "Current Stock Assignments",
+                "SalesRep": "Sales Rep",
+                "Product": "Product",
+                "AssignedQuantity": "Assigned Quantity",
+                "AssignedCostSAR": "Assigned Cost (SAR)",
+                "SalesRevenueSAR": "Sales Revenue (SAR)",
+                "ProfitLossSAR": "Profit/Loss (SAR)",
+                "NoStockAssignments": "No stock assignments found.",
+                "AssignStockButton": "Assign Stock to Sales Reps",
+                "MonitorToVisitListButton": "Monitor To-Visit List",
+                "SalesTrends": "Sales Trends",
+                "DeleteBatch": "Delete Batch",
+            },
+            ar: {
+                "DashboardTitle": "لوحة التحكم",
+                "TotalCustomers": "إجمالي العملاء",
+                "TotalCustomersValueLabel": "العدد:",
+                "PendingVisits": "الزيارات المعلقة",
+                "PendingVisitsValueLabel": "العدد:",
+                "CompletedVisits": "الزيارات المكتملة",
+                "CompletedVisitsValueLabel": "العدد:",
+                "TotalOrders": "إجمالي الطلبات",
+                "TotalOrdersValueLabel": "العدد:",
+                "TotalRevenue": "إجمالي الإيرادات",
+                "TotalRevenueValueLabel": "ريال:",
+                "TotalProducts": "إجمالي المنتجات",
+                "TotalProductsValueLabel": "العدد:",
+                "LowStockAlerts": "منتجات قليلة المخزون",
+                "ProductName": "اسم المنتج",
+                "Quantity": "الكمية",
+                "NoLowStock": "لا توجد منتجات قليلة المخزون.",
+                "CurrentStockAssignments": "التعيينات الحالية للمخزون",
+                "SalesRep": "مندوب المبيعات",
+                "Product": "المنتج",
+                "AssignedQuantity": "الكمية المخصصة",
+                "AssignedCostSAR": "التكلفة المخصصة (ريال)",
+                "SalesRevenueSAR": "إيرادات المبيعات (ريال)",
+                "ProfitLossSAR": "الربح/الخسارة (ريال)",
+                "NoStockAssignments": "لم يتم العثور على تعيينات للمخزون.",
+                "AssignStockButton": "تعيين المخزون إلى مندوبي المبيعات",
+                "MonitorToVisitListButton": "مراقبة قائمة الزيارات",
+                "SalesTrends": "اتجاهات المبيعات",
+                "SalesRepDashboard": "لوحة تحكم مندوب المبيعات",
+                "TotalSalesThisMonth": "إجمالي المبيعات هذا الشهر",
+                "CommissionEarned": "العمولة المكتسبة",
+                "Orders": "الطلبات",
+                "OrderID": "رقم الطلب",
+                "Customer": "العميل",
+                "OrderDate": "تاريخ الطلب",
+                "TotalAmount": "المبلغ الإجمالي (ريال)",
+                "NoOrdersFound": "لم يتم العثور على طلبات لهذا الشهر.",
+                "AssignedStock": "المخزون المخصص",
+                "ProductName": "اسم المنتج",
+                "AssignedQuantity": "الكمية المخصصة",
+                "NoStockAssigned": "لا يوجد مخزون مخصص.",
+                "Register": "تسجيل",
+                "Username": "اسم المستخدم:",
+                "Password": "كلمة المرور:",
+                "EnterYourUsername": "أدخل اسم المستخدم الخاص بك",
+                "EnterYourPassword": "أدخل كلمة المرور الخاصة بك",
+                "Role": "الدور:",
+                "UserRole": "مستخدم",
+                "AdminRole": "مدير",
+                "ManagerRole": "مدير",
+                "SalesRole": "مندوب مبيعات",
+                "InventoryRole": "مدير المخزون",
+                "DeliveryRole": "موظف التوصيل",
+                "SupportRole": "دعم العملاء",
+                "ViewerRole": "مشاهد",
+                "CommissionRate": "نسبة العمولة (%):",
+                "CommissionRatePlaceholder": "مثال: 3.0",
+                "MonthlyTarget": "الهدف الشهري (ريال):",
+                "MonthlyTargetPlaceholder": "مثال: 65000",
+                "RegisterButton": "تسجيل",
+                "MonitorToVisitList": "مراقبة قائمة الزيارات",
+                "MonitorScheduledVisits": "مراقبة الزيارات المجدولة",
+                "SearchBySalesRep": "البحث عن مندوب المبيعات",
+                "StartDate": "تاريخ البدء",
+                "EndDate": "تاريخ الانتهاء",
+                "Filter": "تصفية",
+                "Reset": "إعادة تعيين",
+                "SalesRep": "مندوب المبيعات",
+                "Customer": "العميل",
+                "VisitDate": "تاريخ الزيارة",
+                "Status": "الحالة",
+                "Notes": "ملاحظات",
+                "Actions": "الإجراءات",
+                "MarkAsCompleted": "وضع علامة كمكتمل",
+                "Completed": "مكتمل",
+                "NoVisitsScheduled": "لا توجد زيارات مجدولة.",
+                "Previous": "السابق",
+                "Next": "التالي",
+                "ManageUsers": "إدارة المستخدمين",
+                "UserID": "معرف المستخدم",
+                "Username": "اسم المستخدم",
+                "Role": "الدور",
+                "Actions": "الإجراءات",
+                "Edit": "تعديل",
+                "Delete": "حذف",
+                "NoUsersFound": "لم يتم العثور على مستخدمين.",
+                "AddNewUser": "إضافة مستخدم جديد",
+                "Are you sure you want to delete this user?": "هل أنت متأكد أنك تريد حذف هذا المستخدم؟",
+                "Login": "تسجيل الدخول",
+                "Username": "اسم المستخدم:",
+                "Password": "كلمة المرور:",
+                "EnterYourUsername": "أدخل اسم المستخدم الخاص بك",
+                "EnterYourPassword": "أدخل كلمة المرور الخاصة بك",
+                "BatchID": "معرف الدفعة",
+                "InventoryManagement": "إدارة المخزون",
+                "LowStockAlert": "المنتجات التي تحتوي على أقل من 5 وحدات تعتبر منخفضة المخزون.",
+
+                "NoProductsAvailable": "لا توجد منتجات متاحة.",
+                "Remove": "إزالة",
+                "NoProductsAvailable": "لا توجد منتجات متاحة.",
+                "EditUser": "تعديل المستخدم",
+                "Username": "اسم المستخدم",
+                "Role": "الدور",
+                "UserRole": "مستخدم",
+                "AdminRole": "مدير ادمن",
+                "ManagerRole": "مدير",
+                "SalesRole": "مندوب مبيعات",
+                "InventoryRole": "مدير المخزون",
+                "DeliveryRole": "موظف التوصيل",
+                "SupportRole": "دعم العملاء",
+                "ViewerRole": "مشاهد",
+                "NewPassword": "كلمة مرور جديدة",
+                "LeavePasswordBlank": "اتركها فارغة للاحتفاظ بكلمة المرور الحالية",
+                "SaveChanges": "حفظ التغييرات",
+                "EditOrder": "تعديل الطلب",
+                "CustomerList": "قائمة العملاء",
+                "FilterStreetNamePlaceholder": "تصفية حسب اسم الشارع",
+                "FilterDistrictPlaceholder": "تصفية حسب الحي",
+                "Search": "بحث",
+                "Reset": "إعادة تعيين",
+                "CustomerID": "المعرف",
+                "StoreName": "اسم المتجر",
+                "StreetName": "اسم الشارع",
+                "District": "الحي",
+                "ContactPerson": "جهة الاتصال",
+                "ContactPhone": "رقم الهاتف",
+                "Location": "الموقع",
+                "Notes": "ملاحظات",
+                "Actions": "الإجراءات",
+                "NoPhone": "لا يوجد هاتف",
+                "ViewLocation": "عرض الموقع",
+                "NoLocation": "لا يوجد موقع",
+                "Edit": "تعديل",
+                "ViewOrders": "عرض الطلبات",
+                "AddNotesPlaceholder": "إضافة ملاحظات",
+                "ScheduleVisit": "جدولة زيارة",
+                "NoCustomers": "لم يتم العثور على عملاء مطابقين للشروط.",
+                "AddNotesPlaceholder": "إضافة ملاحظات",
+                "ScheduleVisit": "جدولة زيارة",
+                "NoCustomers": "لم يتم العثور على عملاء مطابقين للشروط.",
+                "Edit": "تعديل",
+                "AddProduct": "إضافة منتج",
+                "ProductName": "اسم المنتج",
+                "BasePrice": "السعر الأساسي",
+                "AddProductButton": "إضافة منتج",
+                "WelcomeMessage": "مرحبًا بكم في لوحة التحكم",
+                "SelectCustomer": "اختر عميل",
+                "SelectCustomerPlaceholder": "اختر عميل",
+                "TotalCustomers": "إجمالي العملاء",
+                "ManageCustomers": "إدارة العملاء",
+                "TotalOrders": "إجمالي الطلبات",
+                "ViewOrders": "عرض الطلبات",
+                "LowStockProducts": "منتجات قليلة المخزون",
+                "ViewInventory": "عرض المخزون",
+                "Inventory": "المخزون",
+                "MyAssignedStock": "المخزون المخصص لي",
+                "ViewStock": "عرض المخزون",
+                "ToVisitList": "قائمة الزيارات",
+                "ViewVisits": "عرض الزيارات",
+                "ViewCustomers": "عرض العملاء",
+                "AddOrder": "إضافة طلب",
+                "AppName": "توزيع الغذاء",
+                "Dashboard": "لوحة التحكم",
+                "CustomerList": "قائمة العملاء",
+                "AddCustomer": "إضافة عميل",
+                "SearchCustomer": "بحث عن عميل",
+                "Logout": "تسجيل الخروج",
+                "CustomerID": "معرف العميل",
+                "StoreName": "اسم المتجر",
+                "StreetName": "اسم الشارع",
+                "District": "الحي",
+                "ContactPerson": "جهة الاتصال",
+                "ContactPhone": "رقم الهاتف",
+                "Notes": "ملاحظات",
+                "AddOrder": "إضافة طلب",
+                "ViewOrders": "عرض الطلبات",
+                "OrderID": "رقم الطلب",
+                "OrderDate": "تاريخ الطلب",
+                "TotalAmount": "المبلغ الإجمالي (ريال)",
+                "Actions": "الإجراءات",
+                "ViewDetails": "عرض التفاصيل",
+                "Delete": "حذف",
+                "AddProduct": "إضافة منتج",
+                "ProductName": "اسم المنتج",
+                "UnitPrice": "سعر الوحدة",
+                "Quantity": "الكمية",
+                "Subtotal": "المجموع الفرعي",
+                "AddStock": "إضافة مخزون",
+                "PurchasePrice": "سعر الشراء",
+                "PurchaseDate": "تاريخ الشراء",
+                "LowStock": "مخزون منخفض",
+                "NoProducts": "لا توجد منتجات متاحة.",
+                "NoCustomers": "لم يتم العثور على عملاء.",
+                "NoOrders": "لا توجد طلبات متاحة.",
+                "SearchQuery": "بحث",
+                "SearchBy": "بحث حسب",
+                "Search": "بحث",
+                "Reset": "إعادة تعيين",
+                "Username": "اسم المستخدم",
+                "Password": "كلمة المرور",
+                "Login": "تسجيل الدخول",
+                "Register": "تسجيل",
+                "Offline": "أنت غير متصل",
+                "OfflineMessage": "يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.",
+                "AddOrder": "إضافة طلب",
+                "Product": "المنتج",
+                "Quantity": "الكمية",
+                "PricePerUnit": "السعر/الوحدة",
+                "Total": "المجموع",
+                "Delete": "حذف",
+                "AddItem": "إضافة عنصر",
+                "TotalAmount": "المبلغ الإجمالي",
+                "OrdersFor": "الطلبات لـ",
+                "OrderID": "رقم الطلب",
+                "OrderDate": "تاريخ الطلب",
+                "ViewDetails": "عرض التفاصيل",
+                "NoOrders": "لا توجد طلبات متاحة لهذا العميل.",
+                "OrderDetails": "تفاصيل الطلب",
+                "CustomerName": "اسم العميل",
+                "AddProduct": "إضافة منتج",
+                "ProductName": "اسم المنتج",
+                "UnitPrice": "سعر الوحدة",
+                "Subtotal": "المجموع الفرعي",
+                "NoProductsAdded": "لم تتم إضافة أي منتجات إلى هذا الطلب بعد. انقر فوق 'إضافة منتج' للبدء.",
+                "AddProductToOrder": "إضافة منتج إلى الطلب",
+                "Location": "الموقع",
+                "GetCurrentLocation": "الحصول على الموقع الحالي",
+                "ViewLocation": "عرض الموقع",
+                "NoLocation": "لا يوجد موقع",
+                "DeleteBatch": "حذف الدفعة",
+            }
+        };
+
+        // Initialize language based on session
+        const currentLang = "{{ session.get('language', 'en') }}";  // Default to 'en' if no language is set
+        if (currentLang === 'ar') {
+            body.classList.add('rtl');
+            toggleLangButton.textContent = "Eng";
+        } else {
+            body.classList.remove('rtl');
+            toggleLangButton.textContent = "عربي";
+        }
+
+        // Function to update Select2 placeholder based on language
+        function updateSelect2Placeholder() {
+            const isRTL = body.classList.contains('rtl');
+            const lang = isRTL ? 'ar' : 'eng';
+            const placeholderText = translations[lang]["SelectCustomerPlaceholder"];
+
+            // Update Select2 placeholder
+            if ($("#customer-select").length) { // Check if Select2 exists on the page
+                $("#customer-select").empty().select2({
+                    placeholder: placeholderText,
+                    allowClear: true,
+                    width: '100%'
+                });
+            }
+        }
+        // Function to update text content based on language
+        function updateLanguage() {
+            const isRTL = body.classList.contains('rtl');
+            const lang = isRTL ? 'ar' : 'eng';
+
+            // Update all elements with data-key attribute
+            document.querySelectorAll('[data-key]').forEach(element => {
+                const key = element.getAttribute('data-key');
+                if (translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+
+            document.querySelectorAll('[data-key-placeholder]').forEach((element) => {
+                const key = element.getAttribute('data-key-placeholder');
+                if (translations[lang][key]) {
+                    element.placeholder = translations[lang][key];
+                }
+            });
+
+            // Update button text
+            toggleLangButton.textContent = isRTL ? "Eng" : "عربي";
+        }
+
+        // Toggle language on button click
+        toggleLangButton.addEventListener('click', () => {
+            // Toggle RTL class on the body
+            body.classList.toggle('rtl');
+
+            // Determine the new language
+            const newLang = body.classList.contains('rtl') ? 'ar' : 'en';
+
+            // Update the session via an AJAX request
+            fetch(`/set_language/${newLang}`, { method: 'GET' })
+                .then(() => {
+                    // Update all text content
+                    updateLanguage();
+                    updateSelect2Placeholder(); // Update Select2 placeholder
+                })
+                .catch(error => console.error('Error updating language:', error));
+
+
+            // Update button position
+            const toggleLangContainer = document.getElementById("toggle-lang-container");
+            if (body.classList.contains('rtl')) {
+                toggleLangContainer.style.left = "15px";
+                toggleLangContainer.style.right = "auto";
+            } else {
+                toggleLangContainer.style.right = "15px";
+                toggleLangContainer.style.left = "auto";
+            }
+
+            // Update all text content
+            updateLanguage();
+        });
+
+        // Initialize language on page load
+        updateLanguage();
+        updateSelect2Placeholder();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/pikaday.min.js"></script>
+
+</body>
+
+</html>
